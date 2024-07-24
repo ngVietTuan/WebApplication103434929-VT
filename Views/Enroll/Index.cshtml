@@ -1,0 +1,226 @@
+﻿@model PaginatedClassViewModel
+@using WebApplication103434929_VT.ModelView
+
+@{
+    ViewData["Title"] = "Class Enrollment";
+}
+
+
+
+<button id="toggleButton" class="btn btn-secondary" onclick="toggleView()">View Enrolled Classes</button>
+
+<div id="enrollmentFormContainer">
+    <h2>Enroll in Classes</h2>
+    <form id="enrollmentForm">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Credit</th>
+                </tr>
+            </thead>
+            <tbody id="classTableBody">
+                @foreach (var item in Model.Classes)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selectedClasses" value="@item.Id" />
+                        </td>
+                        <td>@item.Name</td>
+                        <td>@item.Credit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" onclick="showConfirmModal()">Enroll</button>
+    </form>
+    <div id="paginationControls" class="mt-3">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a href="@Url.Action("Index", new { page = i })" class="btn btn-secondary @(Model.PageNumber == i ? "active" : "")">
+                @i
+            </a>
+        }
+    </div>
+</div>
+
+<div id="enrolledClassesContainer" style="display:none;">
+    <h2>Enrolled Classes</h2>
+    <table class="table" id="enrolledClassesTable">
+        <thead>
+            <tr>
+                <th>Major</th>
+                <th>Class Name</th>
+                <th>Day of Week</th>
+                <th>Time</th>
+                <th>Room Name</th>
+                <th>Room Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ViewBag.EnrolledClasses != null)
+            {
+                @foreach (var item in ViewBag.EnrolledClasses)
+                {
+                    <tr>
+                        <td>@item.MajorName</td>
+                        <td>@item.ClassName</td>
+                        <td>@item.DayOfWeek</td>
+                        <td>@item.Time</td>
+                        <td>@item.RoomName</td>
+                        <td>@item.RoomLocation</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Enrollment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to enroll in the selected classes?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEnrollmentForm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadClasses();
+
+            const toggleButton = document.getElementById('toggleButton');
+            toggleButton.addEventListener('click', toggleView);
+        });
+
+        async function loadClasses(page = 1) {
+            try {
+                const response = await fetch(`/Enroll?page=${page}`);
+                const data = await response.json();
+
+                renderClasses(data.classes);
+                renderPagination(data.pageNumber, data.totalPages);
+            } catch (error) {
+                console.error('Error loading classes:', error);
+            }
+        }
+
+        function renderClasses(classes) {
+            const classTableBody = document.getElementById('classTableBody');
+            classTableBody.innerHTML = '';
+
+            classes.forEach(classItem => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td><input type="checkbox" name="selectedClasses" value="${classItem.id}" /></td>
+                            <td>${classItem.name}</td>
+                            <td>${classItem.credit}</td>
+                        `;
+                classTableBody.appendChild(row);
+            });
+        }
+
+        function renderPagination(currentPage, totalPages) {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = '@Url.Action("Index", new { page = "i" })';
+                pageLink.textContent = i;
+                pageLink.className = `btn btn-secondary ${currentPage === i ? 'active' : ''}`;
+                pageLink.addEventListener('click', () => loadClasses(i));
+
+                paginationControls.appendChild(pageLink);
+            }
+        }
+
+        function toggleView(event) {
+            event.preventDefault();
+
+            const enrollmentFormContainer = document.getElementById('enrollmentFormContainer');
+            const enrolledClassesContainer = document.getElementById('enrolledClassesContainer');
+            const toggleButton = document.getElementById('toggleButton');
+
+            if (enrollmentFormContainer.style.display === 'none') {
+                enrollmentFormContainer.style.display = 'block';
+                enrolledClassesContainer.style.display = 'none';
+                toggleButton.textContent = 'View Enrolled Classes';
+            } else {
+                enrollmentFormContainer.style.display = 'none';
+                enrolledClassesContainer.style.display = 'block';
+                toggleButton.textContent = 'Back to Enrollment Form';
+                loadEnrolledClasses();
+            }
+        }
+
+        async function loadEnrolledClasses() {
+            const response = await fetch('@Url.Action("GetEnrolledClasses", "Enroll")');
+            const enrolledClasses = await response.json();
+
+            const tbody = document.getElementById('enrolledClassesTable').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            enrolledClasses.forEach(e => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td>${e.MajorName}</td>
+                            <td>${e.ClassName}</td>
+                            <td>${e.DayOfWeek}</td>
+                            <td>${e.Time}</td>
+                            <td>${e.RoomName}</td>
+                            <td>${e.RoomLocation}</td>
+                        `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showConfirmModal() {
+            $('#confirmModal').modal('show');
+        }
+
+        async function submitEnrollmentForm() {
+            const selectedClassIds = Array.from(document.querySelectorAll('input[name="selectedClasses"]:checked'))
+                .map(input => input.value);
+
+            if (selectedClassIds.length === 0) {
+                alert('Please select at least one class to enroll.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/Enroll/ConfirmEnrollment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(selectedClassIds)
+                });
+
+                if (response.ok) {
+                    alert('Enrollment successful.');
+                    $('#confirmModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert('Enrollment failed.');
+                }
+            } catch (error) {
+                console.error('Error submitting enrollment:', error);
+                alert('An error occurred while enrolling.');
+            }
+        }
+    </script>
+}

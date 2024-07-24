@@ -1,0 +1,85 @@
+﻿@using WebApplication103434929_VT.ModelView
+@model CalendarViewModel
+@{
+    ViewData["Title"] = "Calendar";
+    var daysInMonth = DateTime.DaysInMonth(Model.CurrentMonth.Year, Model.CurrentMonth.Month);
+    var firstDayOfMonth = new DateTime(Model.CurrentMonth.Year, Model.CurrentMonth.Month, 1);
+    var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+    
+}
+
+<link rel="stylesheet" href="~/css/calendar.css" />
+
+<div class="calendar-container">
+    <div class="calendar">
+        <div class="calendar-header">
+            <span>@Model.CurrentMonth.ToString("MMMM yyyy")</span>
+        </div>
+        <div class="calendar-body">
+            <div class="calendar-grid">
+                <div class="day">Sun</div>
+                <div class="day">Mon</div>
+                <div class="day">Tue</div>
+                <div class="day">Wed</div>
+                <div class="day">Thu</div>
+                <div class="day">Fri</div>
+                <div class="day">Sat</div>
+
+                @for (int i = 0; i < startDayOfWeek; i++)
+                {
+                    <div class="date empty"></div>
+                }
+
+                @for (int day = 1; day <= daysInMonth; day++)
+                {
+                    var currentDate = new DateTime(Model.CurrentMonth.Year, Model.CurrentMonth.Month, day);
+                    var cssClass = Model.Schedule.Any(e => e.DayOfWeek == currentDate.DayOfWeek.ToString() && e.EndDate >= currentDate) ? "date event" : "date";
+
+                    <div class="@cssClass" data-date="@currentDate.ToString("yyyy-MM-dd")">
+                        <span class="date-number">@day</span>
+                        @if (cssClass == "date event")
+                        {
+                            var eventDetails = Model.Schedule.Where(e => e.DayOfWeek == currentDate.DayOfWeek.ToString() && e.EndDate >= currentDate).Select(e => e.TimePeriod).FirstOrDefault();
+                            <div class="event-details">
+                                @eventDetails
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        
+    </div>
+    <div class="event-details-container">
+        <div class="event-details-header">Event Details</div>
+        <div class="event-details-body">
+            <div id="event-details-placeholder">Click on a date to see details.</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/calendar.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateCells = document.querySelectorAll('.date.event');
+            const eventDetailsContainer = document.querySelector('.event-details-container .event-details-body');
+            const eventDetailsPlaceholder = document.getElementById('event-details-placeholder');
+
+            dateCells.forEach(cell => {
+                cell.addEventListener('click', function () {
+                    const date = this.getAttribute('data-date');
+                    const eventDetails = this.querySelector('.event-details').innerHTML;
+
+                    eventDetailsContainer.innerHTML = `<h3>Events on ${date}</h3><p>${eventDetails}</p>`;
+                    eventDetailsPlaceholder.style.display = 'none';
+                });
+            });
+
+            const addEventBtn = document.querySelector('.add-event-btn');
+            addEventBtn.addEventListener('click', function () {
+                alert('Add event functionality not implemented.');
+            });
+        });
+    </script>
+}

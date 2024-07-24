@@ -1,0 +1,301 @@
+﻿@model PaginatedCourseViewModel
+@using WebApplication103434929_VT.ModelView
+
+@{
+    ViewData["Title"] = "Class Enrollment";
+}
+
+<h2> Add Course</h2>
+
+<button id="toggleButton" class="btn btn-secondary" onclick="toggleView()">View Course</button>
+
+<div id="enrollmentFormContainer">
+    <form id="enrollmentForm" asp-action="ConfirmEnrollment" method="post">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Select</th>
+                    <th>Name</th>
+                    <th>Credit</th>
+                </tr>
+            </thead>
+            <tbody id="classTableBody">
+                @foreach (var item in Model.Classes)
+                {
+                    <tr>
+                        <td>
+                            <input type="radio" name="selectedClass" value="@item.Id" data-name="@item.Name" />
+                        </td>
+                        <td>@item.Name</td>
+                        <td>@item.Credit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <button type="button" class="btn btn-primary" onclick="showConfirmModal()">Add Course</button>
+    </form>
+    <div id="paginationControls" class="mt-3">
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <a href="@Url.Action("Index", new { page = i })" class="btn btn-secondary @(Model.PageNumber == i ? "active" : "")">
+                @i
+            </a>
+        }
+    </div>
+</div>
+
+<div id="enrolledClassesContainer" style="display:none;">
+    <h2>Enrolled Courses</h2>
+    <table class="table" id="enrolledClassesTable">
+        <thead>
+            <tr>
+                <th>Class Name</th>
+                <th>Major Name</th>
+                <th>Day of Week</th>
+                <th>Time</th>
+                <th>Room Name</th>
+                <th>Room Location</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in ViewBag.TeacherCourses)
+            {
+                <tr>
+                    <td>@course.ClassName</td>
+                    <td>@course.MajorName</td>
+                    <td>@course.DayOfWeek</td>
+                    <td>@course.Time</td>
+                    <td>@course.RoomName</td>
+                    <td>@course.RoomLocation</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="confirmModal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmClassTitle">Confirm Class</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="confirmEnrollmentForm">
+                    <input type="hidden" id="confirmClassName" readonly>
+                    <div class="form-group">
+                        <label for="confirmDayOfWeek">Day of Week</label>
+                        <select id="confirmDayOfWeek" class="form-control">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmTime">Time</label>
+                        <select id="confirmTime" class="form-control">
+                            <option value="08:00-12:00">08:00-12:00</option>
+                            <option value="13:00-17:00">13:00-17:00</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmRoom">Room</label>
+                        <select id="confirmRoom" class="form-control">
+                            @foreach (var room in Model.Rooms)
+                            {
+                                <option value="@room.Id" data-location="@room.Name">@room.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmStartDate">Start Date</label>
+                        <input type="date" id="confirmStartDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmTestDate">Test Date</label>
+                        <input type="date" id="confirmTestDate" class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitConfirmEnrollmentForm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            loadClasses();
+
+            const toggleButton = document.getElementById('toggleButton');
+            toggleButton.addEventListener('click', toggleView);
+        });
+
+        async function loadClasses(page = 1) {
+            try {
+                const response = await fetch(`/Course/Index?page=${page}`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                const data = await response.json();
+
+                if (data && Array.isArray(data.Classes)) {
+                    renderClasses(data.Classes);
+                    renderPagination(data.PageNumber, data.TotalPages);
+                } else {
+                    console.error('Unexpected response format:', data);
+                }
+            } catch (error) {
+                console.error('Error loading classes:', error);
+            }
+        }
+
+        function renderClasses(classes) {
+            const classTableBody = document.getElementById('classTableBody');
+            classTableBody.innerHTML = '';
+
+            classes.forEach(classItem => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td><input type="radio" name="selectedClass" value="${classItem.id}" data-name="${classItem.name}" /></td>
+                            <td>${classItem.name}</td>
+                            <td>${classItem.credit}</td>
+                        `;
+                classTableBody.appendChild(row);
+            });
+        }
+
+        function renderPagination(currentPage, totalPages) {
+            const paginationControls = document.getElementById('paginationControls');
+            paginationControls.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLink = document.createElement('a');
+                pageLink.href = 'javascript:void(0)';
+                pageLink.textContent = i;
+                pageLink.className = `btn btn-secondary ${currentPage === i ? 'active' : ''}`;
+                pageLink.addEventListener('click', () => loadClasses(i));
+
+                paginationControls.appendChild(pageLink);
+            }
+        }
+
+        function toggleView(event) {
+            event.preventDefault();
+
+            const enrollmentFormContainer = document.getElementById('enrollmentFormContainer');
+            const enrolledClassesContainer = document.getElementById('enrolledClassesContainer');
+            const toggleButton = document.getElementById('toggleButton');
+
+            if (enrollmentFormContainer.style.display === 'none') {
+                enrollmentFormContainer.style.display = 'block';
+                enrolledClassesContainer.style.display = 'none';
+                toggleButton.textContent = 'View Enrolled Classes';
+            } else {
+                enrollmentFormContainer.style.display = 'none';
+                enrolledClassesContainer.style.display = 'block';
+                toggleButton.textContent = 'Back to Class';
+                loadEnrolledClasses();
+            }
+        }
+
+        async function loadEnrolledClasses() {
+            const response = await fetch('@Url.Action("GetEnrolledClasses", "Enroll")');
+            const enrolledClasses = await response.json();
+
+            const tbody = document.getElementById('enrolledClassesTable').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            enrolledClasses.forEach(e => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td>${e.MajorName}</td>
+                            <td>${e.ClassName}</td>
+                            <td>${e.DayOfWeek}</td>
+                            <td>${e.Time}</td>
+                            <td>${e.RoomName}</td>
+                            <td>${e.RoomLocation}</td>
+                        `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showConfirmModal() {
+            const selectedClassRadio = document.querySelector('input[name="selectedClass"]:checked');
+            if (selectedClassRadio) {
+                const className = selectedClassRadio.getAttribute('data-name');
+                document.getElementById('confirmClassName').value = className;
+                document.getElementById('confirmClassTitle').textContent = `Confirm Enrollment for ${className}`;
+                $('#confirmModal').modal('show');
+            } else {
+                alert('Please select a class to enroll.');
+            }
+        }
+
+        async function submitConfirmEnrollmentForm() {
+            const selectedClassRadio = document.querySelector('input[name="selectedClass"]:checked');
+            if (!selectedClassRadio) {
+                alert('Please select a class to enroll.');
+                return;
+            }
+
+            const courseId = selectedClassRadio.value;
+            const courseName = document.getElementById('confirmClassName').value;
+            const dayOfWeek = document.getElementById('confirmDayOfWeek').value;
+            const time = document.getElementById('confirmTime').value;
+            const roomId = document.getElementById('confirmRoom').value;
+            const roomLocation = document.getElementById('confirmRoom').selectedOptions[0].getAttribute('data-location');
+            const startDate = document.getElementById('confirmStartDate').value;
+            const testDate = document.getElementById('confirmTestDate').value;
+
+            const enrollmentData = {
+                ClassesId: courseId,
+                Name: courseName,
+                DayOfWeek: dayOfWeek,
+                Time: time,
+                RoomId: roomId,
+                RoomLocation: roomLocation,
+                StartDate: startDate,
+                TestDate: testDate
+            };
+
+            try {
+                const response = await fetch('/Course/Create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(enrollmentData)
+                });
+
+                if (response.ok) {
+                    alert('Course added successfully.');
+                    $('#confirmModal').modal('hide');
+                    location.reload();
+                } else {
+                    const errorData = await response.json();
+                    alert('Failed to add course: ' + (errorData.message || 'Unknown error.'));
+                }
+            } catch (error) {
+                console.error('Error adding course:', error);
+                alert('An error occurred while adding the course.');
+            }
+        }
+
+
+        function submitEnrollmentForm() {
+            $('#enrollmentForm').submit();
+        }
+    </script>
+}

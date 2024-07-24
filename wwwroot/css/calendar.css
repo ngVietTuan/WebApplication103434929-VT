@@ -1,0 +1,110 @@
+﻿.calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+}
+
+.calendar {
+    flex: 1;
+    max-width: 60%;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.calendar-body {
+    margin-left: 121px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.day {
+    font-weight: bold;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 1.2em;
+}
+
+.date {
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    font-size: 1.2em;
+}
+
+    .date.empty {
+        background-color: #f9f9f9;
+    }
+
+    .date.event {
+        background-color: #e0f7fa;
+    }
+
+.date-number {
+    display: block;
+    font-size: 1.4em;
+}
+
+.event-details {
+    background-color: #00bcd4;
+    color: white;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.calendar-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.add-event-btn {
+    padding: 15px 30px;
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.event-details-container {
+    width: 35%;
+    padding: 20px;
+    background-color: #7b1fa2;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-left: 20px;
+}
+
+.event-details-header {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.event-details-body {
+    background-color: #fff;
+    color: #000;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#event-details-placeholder {
+    text-align: center;
+    font-size: 1.4em;
+    color: #777;
+}
