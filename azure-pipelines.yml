@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'windows-latest'
+  name: 'Default'  # or the name of your self-hosted agent pool
 
 variables:
   buildConfiguration: 'Release'
@@ -18,11 +18,11 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: 'WebApplication103434929-VT.sln'  # Ensure this matches the path to your solution file
+    restoreSolution: '**/*.sln'  # Update this path as needed
 
 - task: VSBuild@1
   inputs:
-    solution: 'WebApplication103434929-VT.sln'  # Ensure this matches the path to your solution file
+    solution: '**/*.sln'  # Update this path as needed
     msbuildArgs: '-property:Configuration=$(buildConfiguration)'
     platform: 'Any CPU'
     configuration: '$(buildConfiguration)'
