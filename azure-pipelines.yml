@@ -37,7 +37,7 @@ stages:
           inputs:
             platform: 'Any CPU'
             configuration: '$(buildConfiguration)'
-            
+
         - powershell: |
             Invoke-WebRequest -Uri "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip" -OutFile "$(Agent.ToolsDirectory)/chromedriver.zip"
             Expand-Archive -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -DestinationPath "$(Agent.ToolsDirectory)" -Force
@@ -56,6 +56,14 @@ stages:
           inputs:
             contents: '**/bin/$(buildConfiguration)/**'
             targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: ArchiveFiles@2
+          inputs:
+            rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+            includeRootFolder: false
+            archiveType: 'zip'
+            archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+            replaceExistingArchive: true
 
         - task: PublishBuildArtifacts@1
           inputs:
