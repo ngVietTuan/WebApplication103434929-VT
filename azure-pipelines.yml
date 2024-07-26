@@ -52,6 +52,16 @@ stages:
             dotnet test
           displayName: 'Run Selenium tests'
 
+        - task: CopyFiles@2
+          inputs:
+            contents: '**/bin/$(buildConfiguration)/**'
+            targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+
   - stage: Deploy
     dependsOn: Build
     jobs:
