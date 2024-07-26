@@ -41,4 +41,4 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: 'dotnet test UnitTest1/TestProject.csproj --logger "trx;LogFileName=testresults.trx"'
+    script: 'dotnet test TestProject/TestProject.csproj --logger "trx;LogFileName=testresults.trx"'
