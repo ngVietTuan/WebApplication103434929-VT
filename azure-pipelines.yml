@@ -42,7 +42,7 @@ steps:
 - task: AzureRmWebAppDeployment@4
   inputs:
     ConnectionType: 'AzureRM'
-    azureSubscription: '<Your Azure Subscription>'
+    azureSubscription: 'github.com_ngVietTuan'
     appType: 'webApp'
     WebAppName: '<StudentEnrollCourseSystem>'
     packageForLinux: '$(build.artifactStagingDirectory)/*.zip'
