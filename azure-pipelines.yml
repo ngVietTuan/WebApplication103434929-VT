@@ -32,13 +32,16 @@ steps:
     platform: 'Any CPU'
     configuration: '$(buildConfiguration)'
     
-- task: PowerShell@2
-  inputs:
-    targetType: 'inline'
-    script: |
-      Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/2.41/chromedriver_win32.zip -OutFile chromedriver.zip
-      Expand-Archive chromedriver.zip -DestinationPath $(Agent.ToolsDirectory)
+- powershell: |
+    Invoke-WebRequest -Uri "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip" -OutFile "$(Agent.ToolsDirectory)/chromedriver.zip"
+    Expand-Archive -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -DestinationPath "$(Agent.ToolsDirectory)" -Force
+    Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
+  displayName: 'Download and install ChromeDriver'
 
-- task: CmdLine@2
-  inputs:
-    script: 'dotnet test TestProject/TestProject.csproj --logger "trx;LogFileName=testresults.trx"'
+# Run Selenium tests
+- powershell: |
+    # Add ChromeDriver to the PATH
+    $env:Path += ";$(Agent.ToolsDirectory)"
+    # Run the tests
+    dotnet test
+  displayName: 'Run Selenium tests'
