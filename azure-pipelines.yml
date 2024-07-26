@@ -18,11 +18,11 @@ steps:
 
 - task: NuGetCommand@2
   inputs:
-    restoreSolution: 'https://github.com/ngVietTuan/WebApplication103434929-VT'  # Ensure this matches the path to your solution file
+    restoreSolution: 'WebApplication103434929-VT.sln'  # Ensure this matches the path to your solution file
 
 - task: VSBuild@1
   inputs:
-    solution: 'https://github.com/ngVietTuan/WebApplication103434929-VT'  # Ensure this matches the path to your solution file
+    solution: 'WebApplication103434929-VT.sln'  # Ensure this matches the path to your solution file
     msbuildArgs: '-property:Configuration=$(buildConfiguration)'
     platform: 'Any CPU'
     configuration: '$(buildConfiguration)'
