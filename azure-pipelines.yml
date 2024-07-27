@@ -67,19 +67,19 @@ stages:
           inputs:
             PathtoPublish: '$(Build.ArtifactStagingDirectory)'
             ArtifactName: 'drop'
-            
+
   - stage: Deploy
     dependsOn: Build
     jobs:
       - job: Deploy
         pool:
-          name: 'Default'  # or the name of your self-hosted agent pool
+          name: 'Default'
         steps:
         - download: current
           artifact: drop
 
         - task: AzureWebApp@1
           inputs:
-            azureSubscription: 'StudentCourseEnrollSystem'  # Replace with your service connection name
-            appName: 'CourseEnroll'  # Replace with your App Service name
-            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+            azureSubscription: 'StudentCourseEnrollSystem'
+            appName: 'CourseEnroll'
+            package: '$(Pipeline.Workspace)/drop/**/*.zip'
