@@ -1,0 +1,85 @@
+trigger:
+- main
+
+pool:
+  name: 'Default'  # or the name of your self-hosted agent pool
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        pool:
+          name: 'Default'
+        steps:
+        - task: UseDotNet@2
+          inputs:
+            packageType: 'sdk'
+            version: '8.x'
+            installationPath: $(Agent.ToolsDirectory)/dotnet
+
+        - task: NuGetToolInstaller@1
+
+        - task: NuGetCommand@2
+          inputs:
+            restoreSolution: '**/*.sln'
+
+        - task: VSBuild@1
+          inputs:
+            solution: '**/*.sln'
+            msbuildArgs: '-property:Configuration=$(buildConfiguration)'
+            platform: 'Any CPU'
+            configuration: '$(buildConfiguration)'
+
+        - task: VSTest@2
+          inputs:
+            platform: 'Any CPU'
+            configuration: '$(buildConfiguration)'
+
+        - powershell: |
+            Invoke-WebRequest -Uri "https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip" -OutFile "$(Agent.ToolsDirectory)/chromedriver.zip"
+            Expand-Archive -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -DestinationPath "$(Agent.ToolsDirectory)" -Force
+            Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
+          displayName: 'Download and install ChromeDriver'
+
+        # Run Selenium tests
+        - powershell: |
+            $env:Path += ";$(Agent.ToolsDirectory)"
+            dotnet test
+          displayName: 'Run Selenium tests'
+
+        - task: CopyFiles@2
+          inputs:
+            contents: '**/bin/$(buildConfiguration)/**'
+            targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: ArchiveFiles@2
+          inputs:
+            rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+            includeRootFolder: false
+            archiveType: 'zip'
+            archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+            replaceExistingArchive: true
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+            ArtifactName: 'drop'
+
+  - stage: Deploy
+    dependsOn: Build
+    jobs:
+      - job: Deploy
+        pool:
+          name: 'Default'
+        steps:
+        - download: current
+          artifact: drop
+
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: 'StudentCourseEnrollSystem'  # Ensure this is the correct Azure service connection name
+            appName: 'CourseEnroll'  # Replace with your App Service name
+            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'  # Use the specific package name
