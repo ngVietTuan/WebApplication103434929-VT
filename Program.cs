@@ -28,7 +28,9 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 builder.Services.AddRazorPages(); // Ensure Razor Pages are added
 
 var app = builder.Build();
+
 await SeedData.SeedAdminUser(app.Services, "admin@domain.com", "Admin@123");
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -72,7 +74,6 @@ public static class SeedData
             {
                 adminUser = new WebUser
                 {
-                    name = "Admin",
                     UserName = adminUserName,
                     Email = adminUserName,
                     EmailConfirmed = true // Ensure required fields are set
