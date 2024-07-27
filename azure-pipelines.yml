@@ -12,23 +12,23 @@ stages:
     jobs:
       - job: Build
         pool:
-          name: 'Default'  # or the name of your self-hosted agent pool
+          name: 'Default'
         steps:
         - task: UseDotNet@2
           inputs:
             packageType: 'sdk'
-            version: '8.x'  # Change this to your required .NET version
+            version: '8.x'
             installationPath: $(Agent.ToolsDirectory)/dotnet
 
         - task: NuGetToolInstaller@1
 
         - task: NuGetCommand@2
           inputs:
-            restoreSolution: '**/*.sln'  # Update this path as needed
+            restoreSolution: '**/*.sln'
 
         - task: VSBuild@1
           inputs:
-            solution: '**/*.sln'  # Update this path as needed
+            solution: '**/*.sln'
             msbuildArgs: '-property:Configuration=$(buildConfiguration)'
             platform: 'Any CPU'
             configuration: '$(buildConfiguration)'
@@ -46,9 +46,7 @@ stages:
 
         # Run Selenium tests
         - powershell: |
-            # Add ChromeDriver to the PATH
             $env:Path += ";$(Agent.ToolsDirectory)"
-            # Run the tests
             dotnet test
           displayName: 'Run Selenium tests'
 
@@ -75,13 +73,13 @@ stages:
     jobs:
       - job: Deploy
         pool:
-          name: 'Default'  # or the name of your self-hosted agent pool
+          name: 'Default'
         steps:
         - download: current
           artifact: drop
 
         - task: AzureWebApp@1
           inputs:
-            azureSubscription: 'StudentCourseEnrollSystem'  # Replace with your Azure service connection name
+            azureSubscription: 'StudentCourseEnrollSystem'  # Ensure this is the correct Azure service connection name
             appName: 'CourseEnroll'  # Replace with your App Service name
-            package: '$(Pipeline.Workspace)/drop/**/*.zip'
+            package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'  # Use the specific package name
