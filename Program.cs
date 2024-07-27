@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using WebApplication103434929_VT.Areas.Identity.Data;
 using WebApplication103434929_VT.Data;
 using WebApplication103434929_VT.Service;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("WebApplication103434929_VTContextConnection")
@@ -18,7 +19,7 @@ builder.Services.AddDefaultIdentity<WebUser>(options => options.SignIn.RequireCo
 
 builder.Services.AddBusessServices();
 // Add services to the container.
-
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["ApplicationInsights:InstrumentationKey"]);
 builder.Services.AddScoped<UserManagementService>();
 builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 {
