@@ -82,6 +82,6 @@ stages:
 
         - task: AzureWebApp@1
           inputs:
-            azureSubscription: 'StudentCourseEnrollSystem'  # Replace with your service connection name
+            azureSubscription: 'StudentCourseEnrollSystem'  # Replace with your Azure service connection name
             appName: 'CourseEnroll'  # Replace with your App Service name
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
