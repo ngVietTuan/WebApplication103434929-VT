@@ -1,16 +1,11 @@
 {
   "dependencies": {
     "mssql1": {
-      "ignored": "true",
-      "type": "mssql",
-      "connectionId": "ConnectionStrings:WebApplication103434929_VTContextConnection"
-    },
-    "mssql2": {
-      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/CourseEnroll/providers/Microsoft.ServiceLinker/linkers/ConnectionStrings_E4BADC192A",
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/CourseEnroll/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsWebApplication103434929_DE11A9D528",
       "secretStore": "AzureAppSettings",
-      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/webapplication103434929-vtdbserver/databases/AzureDBdb",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/webapplication103434929-vtdbserver/databases/AzureDB",
       "type": "mssql.azure",
-      "connectionId": "\"ConnectionStrings:\""
+      "connectionId": "ConnectionStrings:WebApplication103434929_VTContextConnection"
     }
   }
 }
