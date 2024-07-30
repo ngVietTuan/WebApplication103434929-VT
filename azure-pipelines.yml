@@ -6,6 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  testProjectPath: 'D:\hoc\TestProject\TestProject.csproj'  # Update this path to your actual test project path
 
 stages:
   - stage: Build
@@ -44,10 +45,11 @@ stages:
             Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
           displayName: 'Download and install ChromeDriver'
 
-        # Run Selenium tests
+        # Use the Azure DevOps variable for the test project path
         - powershell: |
+            $testProjectPath = "$(testProjectPath)"
             $env:Path += ";$(Agent.ToolsDirectory)"
-            dotnet test $(testProjectPath) 
+            dotnet test $testProjectPath
           displayName: 'Run Selenium tests'
 
         - task: CopyFiles@2
@@ -83,6 +85,7 @@ stages:
             azureSubscription: 'StudentCourseEnrollSystem'
             appName: 'CourseEnroll'
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
+
         - task: AzureAppServiceManage@0
           inputs:
             ConnectedServiceName: 'StudentCourseEnrollSystem'
