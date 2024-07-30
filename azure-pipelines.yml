@@ -6,8 +6,6 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  solutionPath: '**/YourSolution.sln'  # Specify your solution file path
-  testProjectPath: '**/YourTestProject.csproj'  # Specify your test project path
 
 stages:
   - stage: Build
@@ -26,11 +24,11 @@ stages:
 
         - task: NuGetCommand@2
           inputs:
-            restoreSolution: '$(solutionPath)'
+            restoreSolution: '**/*.sln'
 
         - task: VSBuild@1
           inputs:
-            solution: '$(solutionPath)'
+            solution: '**/*.sln'
             msbuildArgs: '-property:Configuration=$(buildConfiguration)'
             platform: 'Any CPU'
             configuration: '$(buildConfiguration)'
@@ -49,7 +47,7 @@ stages:
         # Run Selenium tests
         - powershell: |
             $env:Path += ";$(Agent.ToolsDirectory)"
-            dotnet test $(testProjectPath)  # Specify your test project path here
+            dotnet test $(testProjectPath) 
           displayName: 'Run Selenium tests'
 
         - task: CopyFiles@2
@@ -85,7 +83,6 @@ stages:
             azureSubscription: 'StudentCourseEnrollSystem'
             appName: 'CourseEnroll'
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
-
         - task: AzureAppServiceManage@0
           inputs:
             ConnectedServiceName: 'StudentCourseEnrollSystem'
