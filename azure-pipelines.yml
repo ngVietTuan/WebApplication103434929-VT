@@ -48,7 +48,7 @@ stages:
         # Run Selenium tests
         - powershell: |
             $env:Path += ";$(Agent.ToolsDirectory)"
-            dotnet test
+            dotnet test $testProjectPath
           displayName: 'Run Selenium tests'
 
         - task: CopyFiles@2
