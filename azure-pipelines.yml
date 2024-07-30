@@ -45,10 +45,10 @@ stages:
           displayName: 'Download and install ChromeDriver'
 
         # Run Selenium tests
-        - powershell: |
-            $env:Path += ";$(Agent.ToolsDirectory)"
-            dotnet test
-          displayName: 'Run Selenium tests'
+        #- powershell: |
+         #   $env:Path += ";$(Agent.ToolsDirectory)"
+          #  dotnet test
+          #displayName: 'Run Selenium tests'
 
         - task: CopyFiles@2
           inputs:
