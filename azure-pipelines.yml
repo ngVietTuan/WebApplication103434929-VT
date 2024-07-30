@@ -6,6 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  testProjectPath: 'TestProject.csproj'  # Update this path to your actual test project path
 
 stages:
   - stage: Build
