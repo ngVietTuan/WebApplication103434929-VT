@@ -83,10 +83,3 @@ stages:
             azureSubscription: 'StudentCourseEnrollSystem'
             appName: 'CourseEnroll'
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
-
-        - task: AzureAppServiceManage@0
-          inputs:
-            ConnectedServiceName: 'StudentCourseEnrollSystem'
-            WebAppName: 'CourseEnroll'
-            AppInsightsResourceGroupName: 'Enroll'
-            AppInsightsResourceName: 'CourseEnroll'
