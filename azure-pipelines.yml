@@ -6,7 +6,6 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  testProjectPath: 'TestProject.csproj'  # Update this path to your actual test project path
 
 stages:
   - stage: Build
@@ -48,7 +47,7 @@ stages:
         # Run Selenium tests
         - powershell: |
             $env:Path += ";$(Agent.ToolsDirectory)"
-            dotnet test $testProjectPath
+            dotnet test
           displayName: 'Run Selenium tests'
 
         - task: CopyFiles@2
@@ -84,9 +83,3 @@ stages:
             azureSubscription: 'StudentCourseEnrollSystem'
             appName: 'CourseEnroll'
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
-        - task: AzureAppServiceManage@0
-          inputs:
-            ConnectedServiceName: 'StudentCourseEnrollSystem'
-            WebAppName: 'CourseEnroll'
-            AppInsightsResourceGroupName: 'Enroll'
-            AppInsightsResourceName: 'CourseEnroll'
