@@ -6,7 +6,7 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
-  testProjectPath: 'D:\hoc\TestProject\TestProject.csproj'  # Update this path to your actual test project path
+  testProjectPath: 'D:/hoc/TestProject/TestProject.csproj'  # Update this path to your actual test project path
 
 stages:
   - stage: Build
