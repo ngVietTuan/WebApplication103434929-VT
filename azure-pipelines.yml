@@ -44,7 +44,7 @@ stages:
             Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
           displayName: 'Download and install ChromeDriver'
 
-        # Publish the .NET Core application
+        # Publish the .NET Core application lỗi
         - task: DotNetCoreCLI@2
           inputs:
             command: 'publish'
