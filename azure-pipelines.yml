@@ -44,10 +44,12 @@ stages:
             Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
           displayName: 'Download and install ChromeDriver'
 
-        - task: CopyFiles@2
+        # Publish the .NET Core application
+        - task: DotNetCoreCLI@2
           inputs:
-            contents: '**/bin/$(buildConfiguration)/**'
-            targetFolder: '$(Build.ArtifactStagingDirectory)'
+            command: 'publish'
+            publishWebProjects: true
+            arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
 
         - task: ArchiveFiles@2
           inputs:
