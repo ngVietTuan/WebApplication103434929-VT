@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  name: 'Default'  # or the name of your self-hosted agent pool
+  name: 'Default'
 
 variables:
   buildConfiguration: 'Release'
@@ -44,12 +44,6 @@ stages:
             Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
           displayName: 'Download and install ChromeDriver'
 
-        # Run Selenium tests
-        #- powershell: |
-         #   $env:Path += ";$(Agent.ToolsDirectory)"
-          #  dotnet test
-          #displayName: 'Run Selenium tests'
-
         - task: CopyFiles@2
           inputs:
             contents: '**/bin/$(buildConfiguration)/**'
@@ -83,9 +77,11 @@ stages:
             azureSubscription: 'StudentCourseEnrollSystem'
             appName: 'CourseEnroll'
             package: '$(Pipeline.Workspace)/drop/**/*.zip'
+
         - task: AzureAppServiceManage@0
           inputs:
             ConnectedServiceName: 'StudentCourseEnrollSystem'
             WebAppName: 'CourseEnroll'
+            Action: 'Start Azure App Service' # Specify the action to perform
             AppInsightsResourceGroupName: 'Enroll'
             AppInsightsResourceName: 'CourseEnroll'
