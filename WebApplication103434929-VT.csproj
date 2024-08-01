@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>WebApplication103434929_VT</RootNamespace>
+	<SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
