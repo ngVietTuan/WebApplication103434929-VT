@@ -1,0 +1,192 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <h2>Create a new account.</h2>
+            <hr />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.UserName">UserName</label>
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.Password">Password</label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="email"  placeholder="Email" />
+                <label asp-for="Input.Email">Email</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Name" class="form-control" autocomplete="Name"  placeholder="Name" />
+                <label asp-for="Input.Name">Name</label>
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.PhoneNumber" class="form-control" autocomplete="PhoneNumber"  placeholder="PhoneNumber" />
+                <label asp-for="Input.PhoneNumber">Phone Number</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Address" class="form-control" autocomplete="Address" aria-required="true" placeholder="Address" />
+                <label asp-for="Input.Address">Address</label>
+                <span asp-validation-for="Input.Address" class="text-danger"></span>
+            </div>
+            
+
+            <!-- Major selection -->
+            <div class="form-floating mb-3">
+                <select asp-for="Input.MajorId" class="form-control" asp-items="@(new SelectList(ViewData["Majors"] as List<SelectListItem>, "Value", "Text"))">
+                    <option value="">Select Major</option>
+                </select>
+                <label asp-for="Input.MajorId">Major</label>
+                <span asp-validation-for="Input.MajorId" class="text-danger"></span>
+            </div>
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+        </form>
+    </div>
+    <div class="col-md-6 col-md-offset-2">
+        <section>
+            <h3>Use another service to register.</h3>
+            <hr />
+            @{
+                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <div>
+                        <p>
+                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                            about setting up this ASP.NET application to support logging in via external services</a>.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                        <div>
+                            <p>
+                                @foreach (var provider in Model.ExternalLogins!)
+                                {
+                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                }
+                            </p>
+                        </div>
+                    </form>
+                }
+            }
+        </section>
+    </div>
+</div>
+
+
+<!-- User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">Add New User</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="username">User Name</label>
+                        <input type="text" class="form-control" id="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phonenumber">Phone Number</label>
+                        <input type="text" class="form-control" id="phonenumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" id="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="teacher">Select user type</label>
+                        <select class="form-control" id="teacher">
+                            <!-- Populate with teachers -->
+                            <option value="">Select a teacher</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#userForm').submit(function (e) {
+                e.preventDefault();
+
+                var userData = {
+                    UserName: $('#username').val(),
+                    Email: $('#email').val(),
+                    PhoneNumber: $('#phonenumber').val(),
+                    Address: $('#address').val(),
+                    TeacherId: $('#teacher').val(),
+                    Password: 'enroll@123'
+                };
+
+                $.ajax({
+                    url: '@Url.Action("CreateUser", "Admin")',
+                    type: 'POST',
+                    data: JSON.stringify(userData),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (response) {
+                        if (response.success) {
+                            alert('New user added');
+                            $('#userModal').modal('hide');
+
+                            // Append the new user to the table
+                            var newRow = `<tr>
+                                                    <td>${response.user.userName}</td>
+                                                    <td>${response.user.email}</td>
+                                                    <td>${response.user.phoneNumber}</td>
+                                                    <td>${response.user.address}</td>
+                                                    <td><button class="btn btn-info btn-sm"><i class="fas fa-edit"></i> Edit</button></td>
+                                                    <td><button class="btn btn-warning btn-sm"><i class="fas fa-sync"></i> Reset</button></td>
+                                                    <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button></td>
+                                                  </tr>`;
+                            $('#userTableBody').append(newRow);
+                        } else {
+                            alert('Failed to add user: ' + response.message);
+                        }
+                    },
+                    error: function () {
+                        alert('An error occurred while adding the user.');
+                    }
+                });
+            });
+        });
+    </script>
+}
