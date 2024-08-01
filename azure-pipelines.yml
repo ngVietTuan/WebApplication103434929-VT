@@ -26,11 +26,11 @@ stages:
 
         - task: NuGetCommand@2
           inputs:
-            restoreSolution: '*/.sln'
+            restoreSolution: '**/*.sln' # Adjusted the solution path to search in all subdirectories
 
         - task: VSBuild@1
           inputs:
-            solution: '*/.sln'
+            solution: '**/*.sln' # Adjusted the solution path to search in all subdirectories
             msbuildArgs: '-property:Configuration=$(buildConfiguration)'
             platform: 'Any CPU'
             configuration: '$(buildConfiguration)'
