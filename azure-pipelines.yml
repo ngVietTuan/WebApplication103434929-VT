@@ -44,8 +44,6 @@ stages:
             Remove-Item -Path "$(Agent.ToolsDirectory)/chromedriver.zip" -Force
           displayName: 'Download and install ChromeDriver'
 
-      
-
         - task: ArchiveFiles@2
           inputs:
             rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
@@ -69,16 +67,20 @@ stages:
         - download: current
           artifact: drop
 
-        - task: AzureWebApp@1
-          inputs:
-            azureSubscription: 'StudentCourseEnrollSystem'
-            appName: 'CourseEnroll'
-            package: '$(Pipeline.Workspace)/drop/**/*.zip'
+        - powershell: |
+            $ec2InstanceId = "i-0e990794ea9023a54"
+            $region = "ap-southeast-2"
+            $keyPath = "C:\Users\thait\Downloads\SWE40060.ppk"
+            $user = "ec2-user"
+            $artifactPath = "$(Pipeline.Workspace)/drop/**/*.zip"
+            $remotePath = "/var/www/your-app"
 
-        - task: AzureAppServiceManage@0
-          inputs:
-            ConnectedServiceName: 'StudentCourseEnrollSystem'
-            WebAppName: 'CourseEnroll'
-            Action: 'Start Azure App Service' # Specify the action to perform
-            AppInsightsResourceGroupName: 'Enroll'
-            AppInsightsResourceName: 'CourseEnroll'
+            # Extract the artifact
+            Expand-Archive -Path $artifactPath -DestinationPath "$(Pipeline.Workspace)/drop"
+
+            # Copy files to EC2 instance
+            scp -i $keyPath -r "$(Pipeline.Workspace)/drop/*" $user@$ec2InstanceId:$remotePath
+
+            # Connect to EC2 instance and restart the application
+            ssh -i $keyPath $user@$ec2InstanceId "sudo systemctl restart your-app-service"
+          displayName: 'Deploy to AWS EC2'
