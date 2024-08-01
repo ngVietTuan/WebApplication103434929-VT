@@ -15,7 +15,7 @@ stages:
           name: 'Default'
         steps:
         - checkout: self
-
+          
         - task: UseDotNet@2
           inputs:
             packageType: 'sdk'
@@ -26,11 +26,11 @@ stages:
 
         - task: NuGetCommand@2
           inputs:
-            restoreSolution: '**/*.sln'
+            restoreSolution: '*/.sln'
 
         - task: VSBuild@1
           inputs:
-            solution: '**/*.sln'
+            solution: '*/.sln'
             msbuildArgs: '-property:Configuration=$(buildConfiguration)'
             platform: 'Any CPU'
             configuration: '$(buildConfiguration)'
@@ -69,36 +69,16 @@ stages:
         - download: current
           artifact: drop
 
-        - powershell: |
-            # Variables
-            $ec2InstanceId = "i-0e990794ea9023a54"
-            $region = "ap-southeast-2"
-            $keyPath = "C:\\Users\\thait\\Downloads\\SWE40060.ppk"
-            $user = "ec2-user"
-            $artifactPath = "$(Pipeline.Workspace)\\drop\\*.zip"
-            $remotePath = "/var/www/your-app"
-            $puttyDownloadUrl = "https://the.earth.li/~sgtatham/putty/latest/w64/putty.zip"
-            $puttyDirectory = "$(Agent.ToolsDirectory)\\putty"
+        - task: AzureWebApp@1
+          inputs:
+            azureSubscription: 'StudentCourseEnrollSystem'
+            appName: 'CourseEnroll'
+            package: '$(Pipeline.Workspace)/drop/**/*.zip'
 
-            # Download and install PuTTY
-            New-Item -ItemType Directory -Force -Path $puttyDirectory
-            Invoke-WebRequest -Uri $puttyDownloadUrl -OutFile "$puttyDirectory\\putty.zip"
-            Expand-Archive -Path "$puttyDirectory\\putty.zip" -DestinationPath $puttyDirectory -Force
-
-            # Set paths for pscp and plink
-            $pscpPath = "$puttyDirectory\\pscp.exe"
-            $plinkPath = "$puttyDirectory\\plink.exe"
-
-            # Extract the artifact
-            Expand-Archive -Path $artifactPath -DestinationPath "$(Pipeline.Workspace)\\drop"
-
-            # Copy files to EC2 instance
-            $scpCommand = "& `"$pscpPath`" -i `"$keyPath`" -r `"$((Pipeline.Workspace)\\drop\\*)`" $user@$ec2InstanceId:$remotePath"
-            Write-Host "Executing: $scpCommand"
-            Invoke-Expression $scpCommand
-
-            # Connect to EC2 instance and restart the application
-            $sshCommand = "& `"$plinkPath`" -i `"$keyPath`" $user@$ec2InstanceId `"`"sudo systemctl restart your-app-service`"`""
-            Write-Host "Executing: $sshCommand"
-            Invoke-Expression $sshCommand
-          displayName: 'Deploy to AWS EC2'
+        - task: AzureAppServiceManage@0
+          inputs:
+            ConnectedServiceName: 'StudentCourseEnrollSystem'
+            WebAppName: 'CourseEnroll'
+            Action: 'Start Azure App Service' # Specify the action to perform
+            AppInsightsResourceGroupName: 'Enroll'
+            AppInsightsResourceName: 'CourseEnroll'
